@@ -15,7 +15,8 @@ return new class extends Migration
         $table->id();
         $table->string('student_id', 20)->unique();
         $table->string('first_name', 100);
-        $table->string('last_name', 50);
+        $table->string('first surname', 50);
+        $table->string('second surname', 50);
         $table->string('middle_name', 50)->nullable();
         $table->enum('major', ['Systems', 'Electronics', 'Mechatronics', 'Industrial', 'Other']);
         $table->string('group_name', 20)->nullable();
