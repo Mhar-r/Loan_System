@@ -34,8 +34,22 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+
+        if ($user->role_id === 1) {
+            // Redirige a dashboard admin
+            return redirect()->intended('/admin/dashboard');
+        }
+
+        if ($user->role_id === 2) {
+            // Redirige a dashboard encargado
+            return redirect()->intended('/manager/dashboard');
+        }
+
+        // Si el rol no es 1 ni 2, redirige a la ruta HOME por defecto
         return redirect()->intended(RouteServiceProvider::HOME);
     }
+
 
     /**
      * Destroy an authenticated session.
