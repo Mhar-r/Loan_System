@@ -20,6 +20,7 @@ return new class extends Migration
             $table->dateTime('loan_date')->useCurrent();
             $table->dateTime('expected_return_date')->nullable();
             $table->dateTime('actual_return_date')->nullable();
+            $table->timestamps();
         });
     }
 

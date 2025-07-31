@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             // Campos para nombre dividido
-            $table->string('first_name');             // Nombres
+            $table->string('name');             // Nombres
             $table->string('first_surname', 50);
             $table->string('second_surname', 50);     // Apellido materno
 
