@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'first_name',
+        'name',
         'first_surname',
         'second_surname',
         'email',
@@ -48,7 +48,11 @@ class User extends Authenticatable
     ];
 
     public function role()
-{
-    return $this->belongsTo(Role::class);
-}
+        {
+            return $this->belongsTo(Role::class);
+        }
+    public function loans()
+        {
+            return $this->hasMany(Loan::class);
+        }
 }

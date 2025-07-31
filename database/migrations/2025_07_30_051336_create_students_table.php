@@ -14,15 +14,16 @@ return new class extends Migration
     Schema::create('students', function (Blueprint $table) {
         $table->id();
         $table->string('student_id', 20)->unique();
-        $table->string('first_name', 100);
-        $table->string('first surname', 50);
-        $table->string('second surname', 50);
-        $table->string('middle_name', 50)->nullable();
+        $table->string('name', 100);
+        $table->string('first_surname', 50);
+        $table->string('second_surname', 50);
         $table->enum('major', ['Systems', 'Electronics', 'Mechatronics', 'Industrial', 'Other']);
         $table->string('group_name', 20)->nullable();
         $table->string('email', 100)->unique();
         $table->string('phone', 15)->nullable();
-        $table->timestamp('created_at')->useCurrent();
+        
+        $table->timestamps();
+
     });
 }
 
