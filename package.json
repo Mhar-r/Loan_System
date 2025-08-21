@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "lodash.debounce": "^4.0.8",
+        "react-icons": "^5.5.0",
         "sweetalert2": "^11.22.4"
     }
 }

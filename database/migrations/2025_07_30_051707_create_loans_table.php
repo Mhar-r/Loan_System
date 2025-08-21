@@ -18,8 +18,7 @@ return new class extends Migration
             $table->text('accessories')->nullable();
             $table->enum('status', ['Active', 'Returned', 'Overdue'])->default('Active');
             $table->dateTime('loan_date')->useCurrent();
-            $table->dateTime('expected_return_date')->nullable();
-            $table->dateTime('actual_return_date')->nullable();
+            $table->dateTime('return_date')->nullable();
             $table->timestamps();
         });
     }

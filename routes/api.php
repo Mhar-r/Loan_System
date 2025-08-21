@@ -7,6 +7,7 @@ use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialTypeController;
+use App\Http\Controllers\UserController;
 
 
 
@@ -30,6 +31,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/roles', [RoleController::class, 'index']);
 
 
+Route::get('/users', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store']);
+Route::put('/users/{id}', [UserController::class, 'update']);
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 Route::get('/labs', [LaboratoryController::class, 'index']);
 Route::get('/students/search/{matricula}', [StudentController::class, 'searchByMatricula']);
