@@ -54,7 +54,10 @@ Route::middleware(['auth', 'role:1'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:1,2'])->group(function () {
-    // Dashboard de Administrador (role_id = 1)
+    //Insertar Tipos de materiales(generadores, fuentes)
+    Route::get('/materials/creatematerialtype', [MaterialTypeController::class, 'create'])->name('materialtype.create');
+    Route::post('/materials/creatematerialtype', [MaterialTypeController::class, 'store'])->name('materialtype.store');
+    
     //Registrar Materiales
     Route::get('admin/materials/create', [MaterialController::class, 'create'])->name('material.create');
     Route::post('admin/materials', [MaterialController::class, 'store'])->name('material.store');
@@ -87,9 +90,6 @@ Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
 
     // Registrar usuario
     Route::post('/users', [RegisterUsersController::class, 'store'])->name('admin.users.store');
-    //Insertar Tipos de materiales(generadores, fuentes)
-    Route::get('/materialtype', [MaterialTypeController::class, 'create'])->name('materialtype.create');
-    Route::post('/materialtype', [MaterialTypeController::class, 'store'])->name('materialtype.store');
     
 
     // Reportes de Préstamos
