@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Laboratory;
 use Illuminate\Http\Request;
 
 class LaboratoryController extends Controller
@@ -11,7 +11,10 @@ class LaboratoryController extends Controller
      */
     public function index()
     {
-        //
+        
+        $labs = Laboratory::all();
+        return response()->json($labs);
+    
     }
 
     /**

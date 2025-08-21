@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MaterialType extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['name','laboratory_id'];
 
     public function materials()
     {
@@ -17,5 +17,10 @@ class MaterialType extends Model
     public function requests()
     {
         return $this->hasMany(Request::class);
+    }
+
+    public function laboratory()
+    {
+        return $this->belongsTo(Laboratory::class);
     }
 }

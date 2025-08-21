@@ -11,7 +11,9 @@ use App\Http\Controllers\RegisterUsersController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentPanelController;
 use App\Http\Controllers\RequestController;
-
+use App\Http\Controllers\MaterialTypeController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\LoanController;
 
 
 /*
@@ -48,12 +50,33 @@ Route::middleware(['auth', 'role:1'])->group(function () {
     // Dashboard de Administrador (role_id = 1)
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
         ->name('admin.dashboard');
+
 });
+
+Route::middleware(['auth', 'role:1,2'])->group(function () {
+    // Dashboard de Administrador (role_id = 1)
+    //Registrar Materiales
+    Route::get('admin/materials/create', [MaterialController::class, 'create'])->name('material.create');
+    Route::post('admin/materials', [MaterialController::class, 'store'])->name('material.store');
+    //Registrar Prestamos
+    Route::get('/loans/create', [LoanController::class, 'create'])->name('loans.create');
+    Route::post('/loans', [LoanController::class, 'store'])->name('loans.store');
+
+    //Devolucion de Prestamos
+    Route::get('/loans/return-materials', function () {
+    return Inertia\Inertia::render('Loans/ReturnMaterials');
+})->name('loans.return-materials');
+
+
+});
+
 
 Route::middleware(['auth', 'role:2'])->group(function () {
     // Dashboard de Encargado (role_id = 2)
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])
         ->name('manager.dashboard');
+
+    
 });
 
 // Para el administrador
@@ -63,7 +86,12 @@ Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
     Route::get('/users', [RegisterUsersController::class, 'create'])->name('admin.users.create');
 
     // Registrar usuario
-    Route::post('/register', [RegisterUsersController::class, 'store'])->name('register');
+    Route::post('/users', [RegisterUsersController::class, 'store'])->name('admin.users.store');
+    //Insertar Tipos de materiales(generadores, fuentes)
+    Route::get('/materialtype', [MaterialTypeController::class, 'create'])->name('materialtype.create');
+    Route::post('/materialtype', [MaterialTypeController::class, 'store'])->name('materialtype.store');
+    
+
     // Reportes de Préstamos
     Route::get('/loan_reports', [LoanReportController::class, 'index'])->name('loan_reports.index');
     // Historial de Préstamos
@@ -91,6 +119,8 @@ Route::get('/solicitudes', function () {
 })->name('solicitudes.index');;
 
 Route::get('/estudiantes/panel', [StudentPanelController::class, 'index'])->name('student.panel');
+
+
 
 
 require __DIR__.'/auth.php';

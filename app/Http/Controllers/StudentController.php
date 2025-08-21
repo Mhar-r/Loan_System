@@ -16,7 +16,7 @@ class StudentController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/RegisterStudent');
+        return Inertia::render('Students/RegisterStudent');
     }
 
     /**
@@ -48,7 +48,27 @@ class StudentController extends Controller
             'phone'        => $request->phone,
         ]);
 
-        return redirect()->route('solicitudes.index')->with('success', 'Registro exitoso. Ahora puedes hacer tu solicitud.');
+        return redirect()->route('solicitudes.index')->with('success', 'Registro exitoso.');
 
     }
+
+    public function searchByMatricula($matricula)
+    {
+        $student = Student::where('student_id', $matricula)->first();
+
+        if ($student) {
+            return response()->json([
+                'success' => true,
+                'student' => $student,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Estudiante no encontrado',
+        ], 404);
+    }
+
+
+
 }

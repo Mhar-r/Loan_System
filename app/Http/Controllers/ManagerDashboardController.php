@@ -9,6 +9,8 @@ class ManagerDashboardController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Manager/Dashboard'); // Va a React en resources/js/Pages/Manager/Dashboard.jsx
+        return Inertia::render('Manager/Dashboard',[
+             'user' => Auth::user()->load('role') // Asegúrate de cargar la relación
+    ]);
     }
 }
