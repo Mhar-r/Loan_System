@@ -8,10 +8,11 @@ import React, { useEffect } from 'react';
 import Swal from 'sweetalert2';
 
 export default function Create() {
-    const { flash, errors } = usePage().props;
+    const { flash, errors, laboratories } = usePage().props;
 
     const { data, setData, post, processing, reset } = useForm({
         name: '',
+        laboratory_id:'',
     });
 
     useEffect(() => {
@@ -62,6 +63,25 @@ export default function Create() {
                     {/* Puedes dejar esto como respaldo */}
                     <InputError message={errors.name} className="mt-2" />
                 </div>
+
+                <div>
+                    <InputLabel htmlFor="laboratory_id" value="Laboratorio" />
+                    <select
+                        id="laboratory_id"
+                        name="laboratory_id"
+                        value={data.laboratory_id}
+                        onChange={(e) => setData('laboratory_id', e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300"
+                        required
+                    >
+                        <option value="">Selecciona un laboratorio</option>
+                        {laboratories.map((lab) => (
+                            <option key={lab.id} value={lab.id}>{lab.name}</option>
+                        ))}
+                    </select>
+                    <InputError message={errors.laboratory_id} className="mt-2" />
+                </div>
+
 
                 <PrimaryButton disabled={processing}>
                     Guardar
