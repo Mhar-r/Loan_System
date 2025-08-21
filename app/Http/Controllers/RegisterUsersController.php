@@ -29,32 +29,32 @@ class RegisterUsersController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name'       => 'required|string|max:255',
-            'first_surname'    => 'required|string|max:255',
-            'second_surname'   => 'required|string|max:255',
-            'email'            => 'required|string|email|unique:users',
-            'phone'            => 'nullable|string|max:20',
-            'password'         => ['required', 'confirmed', Rules\Password::defaults()],
-            'role_id'          => 'required|exists:roles,id'
+    public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'first_surname' => 'required|string|max:255',
+        'second_surname' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'phone' => 'required|string|max:20',
+        'password' => 'required|confirmed|min:8',
+        'role_id' => 'required|exists:roles,id',
+    ]);
+
+    try {
+        User::create([
+            'name' => $validated['name'],
+            'first_surname' => $validated['first_surname'],
+            'second_surname' => $validated['second_surname'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'password' => bcrypt($validated['password']),
+            'role_id' => $validated['role_id'],
         ]);
 
-        $user = User::create([
-            'name'       => $request->name,
-            'first_surname'    => $request->first_surname,
-            'second_surname'   => $request->second_surname,
-            'email'            => $request->email,
-            'phone'            => $request->phone,
-            'password'         => Hash::make($request->password),
-            'role_id'          => $request->role_id,
-        ]);
-
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return redirect(RouteServiceProvider::HOME);
+        return redirect()->back()->with('success', 'Usuario registrado correctamente.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Error al registrar el usuario.');
     }
+}
 }

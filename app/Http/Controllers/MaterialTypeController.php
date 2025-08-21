@@ -2,63 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MaterialType; // ✅ Importar el modelo
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class MaterialTypeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
+{
+    return response()->json(MaterialType::all());
+}
+
+    public function create(): Response
     {
-        //
+        return Inertia::render('Admin/MaterialType'); // ✅ Respeta mayúsculas según tu carpeta
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function getByLab($lab_id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        // Relaciona los tipos de material con laboratorio según tu modelo
+        $types = MaterialType::where('laboratory_id', $lab_id)->get();
+        return response()->json($types);
     }
 }

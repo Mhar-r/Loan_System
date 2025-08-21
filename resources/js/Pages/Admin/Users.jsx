@@ -6,6 +6,8 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import axios from 'axios';
+import Swal from 'sweetalert2';//Para alertas
+
 
 export default function Register() {
     const [roles, setRoles] = useState([]);
@@ -32,9 +34,36 @@ export default function Register() {
     }, []);
 
     const submit = (e) => {
-        e.preventDefault();
-        post(route('register'));
-    };
+    e.preventDefault();
+
+    axios.post(route('admin.users.store'), data)
+        .then((response) => {
+            Swal.fire({
+                title: 'Éxito',
+                text: response.data.message,
+                icon: 'success',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#4f46e5'
+            });
+            reset();
+        })
+        .catch((error) => {
+            if (error.response) {
+                Swal.fire({
+                    title: 'Error',
+                    text: error.response.data.message || 'Ocurrió un error.',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudo conectar con el servidor.',
+                    icon: 'error'
+                });
+            }
+        });
+};
 
     return (
         <GuestLayout>
