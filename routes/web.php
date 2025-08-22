@@ -67,8 +67,9 @@ Route::middleware(['auth', 'role:1,2'])->group(function () {
 
     //Devolucion de Prestamos
     Route::get('/loans/return-materials', function () {
-    return Inertia\Inertia::render('Loans/ReturnMaterials');
+    return Inertia::render('Loans/ReturnMaterials');
 })->name('loans.return-materials');
+
 
 
 });

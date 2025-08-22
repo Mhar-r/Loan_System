@@ -23,7 +23,7 @@ export default function AdminDashboard({ user }) {
                           <Link href={route('students.create')} className="p-6 bg-red-100 rounded shadow hover:bg-red-200 transition">Registrar Estudiantes</Link>
                           <Link href={route('loans.create')} className="p-6 bg-purple-100 rounded shadow hover:bg-purple-200 transition">Registro de Prestamos</Link>
                           <Link href="/admin/loans" className="p-6 bg-pink-100 rounded shadow hover:bg-pink-200 transition">Solicitudes de Prestamos</Link>
-                          <Link  className="p-6 bg-pink-100 rounded shadow hover:bg-pink-200 transition">Devoluciones</Link>
+                          <Link href={route('loans.return-materials')} className="p-6 bg-pink-100 rounded shadow hover:bg-pink-200 transition">Devoluciones</Link>
                           <Link  className="p-6 bg-pink-100 rounded shadow hover:bg-pink-200 transition">Historial de Prestamos</Link>
                           <Link  className="p-6 bg-pink-100 rounded shadow hover:bg-pink-200 transition">Inventario de Material</Link>
 

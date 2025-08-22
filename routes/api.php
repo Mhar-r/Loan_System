@@ -7,6 +7,7 @@ use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialTypeController;
+use App\Http\Controllers\LoanController;
 
 
 
@@ -38,3 +39,10 @@ Route::get('/laboratories/{id}/materials', [MaterialController::class, 'getByLab
 
 Route::get('/material-types/by-lab/{lab_id}', [MaterialTypeController::class, 'getByLab']);
 Route::get('/materials/search-by-type', [MaterialController::class, 'searchByType']);
+
+//Devolucion de prestamos
+Route::get('/loans', [LoanController::class, 'index']);
+Route::post('/loans/return/{detail_id}', [LoanController::class, 'returnDetail']);
+
+
+Route::get('/loans/active', [LoanController::class, 'getActiveLoans']);

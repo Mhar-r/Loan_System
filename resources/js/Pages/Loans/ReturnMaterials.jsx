@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { usePage } from "@inertiajs/react";
 
 export default function ReturnMaterials() {
   const [labs, setLabs] = useState([]);
@@ -9,8 +10,24 @@ export default function ReturnMaterials() {
   const [condition, setCondition] = useState('');
   const [selectedDetailId, setSelectedDetailId] = useState(null);
 
+  const { errors } = usePage().props; // 👈 así obtenemos los errores de Inertia
+
   useEffect(() => {
-    // Carga laboratorios
+  fetch("/api/loans") //  /api/loans definida en api.php
+    .then((res) => res.json())
+    .then((data) => setLoans(data))
+    .catch((err) => console.error("Error fetching loans:", err));
+}, []);
+
+  // Mostrar alerta si hay material no disponible
+  useEffect(() => {
+    if (errors?.material_unavailable) {
+      alert(errors.material_unavailable);
+    }
+  }, [errors]);
+
+  // Carga laboratorios
+  useEffect(() => {
     axios.get('/api/labs')
       .then(res => setLabs(res.data))
       .catch(() => setLabs([]));
@@ -29,39 +46,49 @@ export default function ReturnMaterials() {
 
   const fetchLoans = async () => {
     try {
-      const params = { lab_id: selectedLab };
-      if (matricula.trim() !== '') {
-        params.matricula = matricula.trim();
-      }
-      const res = await axios.get('/api/loans/active', { params });
-      setLoans(res.data);
-      setSelectedDetailId(null);
-      setCondition('');
+      const response = await axios.get(
+        `/api/loans/active`,
+        { params: { lab_id: selectedLab, matricula } }
+      );
+      setLoans(response.data);
     } catch (error) {
-      console.error('Error fetching loans:', error);
-      setLoans([]);
+      console.error("Error fetching loans:", error);
     }
   };
 
-  const handleReturn = async (detailId) => {
+  const returnLoan = async (detailId) => {
     if (!condition.trim()) {
-      alert('Por favor escribe la condición al devolver el material.');
+      alert("Por favor escribe la condición al devolver el material.");
       return;
     }
 
     try {
-      await axios.put(`/api/loans/return/${detailId}`, {
-        item_condition: condition.trim(),
+      const res = await fetch(`/api/loans/return/${detailId}`, {
+        method: "POST", // debe coincidir con la ruta
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item_condition: condition })
       });
-      alert('Material devuelto correctamente');
-      fetchLoans();
-      setCondition('');
-      setSelectedDetailId(null);
+
+      if (res.ok) {
+        alert("Préstamo devuelto correctamente");
+        // quitar solo el detalle devuelto
+        setLoans(loans.map(loan => ({
+          ...loan,
+          loan_details: loan.loan_details.filter(d => d.id !== detailId)
+        })));
+        setSelectedDetailId(null);
+        setCondition('');
+      } else {
+        const data = await res.json();
+        alert(data.message || "Error al devolver préstamo");
+      }
     } catch (error) {
       console.error(error);
-      alert('Error al devolver el material');
+      alert("Error al devolver préstamo");
     }
   };
+
+
 
   const handleClearSearch = () => {
     setMatricula('');
@@ -140,7 +167,7 @@ export default function ReturnMaterials() {
                             className="border p-1 text-xs w-full"
                           />
                           <button
-                            onClick={() => handleReturn(detail.id)}
+                            onClick={() => returnLoan(detail.id)}
                             className="mt-1 bg-green-600 text-white px-2 py-1 text-xs rounded"
                           >
                             Confirmar devolución

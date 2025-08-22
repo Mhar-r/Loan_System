@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('material_types', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
+            $table->foreignId('laboratory_id')->nullable()->constrained('laboratories');
             $table->timestamps();
         });
     }
