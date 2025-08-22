@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('loan_id')->constrained('loans')->onDelete('cascade');
             $table->foreignId('material_id')->constrained('materials');
             $table->text('accessories')->nullable();
+            $table->enum('status', ['On_loan', 'Returned'])->default('On_loan');
+            $table->text('return_condition')->nullable();
             $table->timestamps();
         });
     }
