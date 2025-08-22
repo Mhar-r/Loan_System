@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Loan extends Model
 {
     protected $fillable = [
-        'student_id', 'manager_id', 'accessories', 'subject',
+        'student_id', 'manager_id', 'laboratory_id','accessories', 'subject',
         'status', 'loan_date',  'return_date'
     ];
 
@@ -25,5 +25,10 @@ class Loan extends Model
     public function loanDetails()
     {
         return $this->hasMany(LoanDetail::class);
+    }
+    public function laboratory()
+    {
+         return $this->belongsTo(Laboratory::class);
+
     }
 }

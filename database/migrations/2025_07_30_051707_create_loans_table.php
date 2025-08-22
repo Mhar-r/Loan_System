@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained('students');
             $table->foreignId('manager_id')->constrained('users');
+            $table->foreignId('laboratory_id')->nullable()->constrained('laboratories');
             $table->text('accessories')->nullable();
             $table->enum('status', ['Active', 'Returned', 'Overdue'])->default('Active');
             $table->dateTime('loan_date')->useCurrent();
-            $table->dateTime('expected_return_date')->nullable();
-            $table->dateTime('actual_return_date')->nullable();
+            $table->dateTime('return_date')->nullable();
+            $table->string('subject', 100)->nullable();
             $table->timestamps();
         });
     }

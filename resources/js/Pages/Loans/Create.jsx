@@ -153,7 +153,7 @@ export default function RegisterLoan() {
   };
 
   // Registrar préstamo
-  const handleRegisterLoan = async () => {
+const handleRegisterLoan = async () => {
   if (!student || !selectedLab || materialsList.length === 0 || !subject.trim()) {
     alert("Por favor completa todos los datos antes de guardar, incluyendo el asunto y materiales.");
     return;
@@ -167,46 +167,57 @@ export default function RegisterLoan() {
     }
   }
 
-    try {
-      const res = await axios.post('/loans', {
-        student_id: student.id,
-        manager_id: currentUser.id,
-        accessories: accessoriesGlobal,  // accesorios generales
-        return_date: ReturnDate || null,
-        subject: subject.trim(),
-        materials: materialsList.map(m => ({
-          id: m.id,
-          accessories: m.accessories,
-        })),
-      });
+  try {
+    const res = await axios.post('/loans', {
+      student_id: student.id,
+      manager_id: currentUser.id,
+      laboratory_id: selectedLab,
+      accessories: accessoriesGlobal,
+      return_date: ReturnDate || null,
+      subject: subject.trim(),
+      materials: materialsList.map(m => ({
+        id: m.id,
+        accessories: m.accessories,
+      })),
+    });
 
-      if (res.status === 200 || res.status === 201) {
-        alert("Préstamo registrado correctamente!");
-        // Limpiar formulario
-        setMatricula('');
-        setStudent(null);
-        setSelectedLab('');
-        setMaterialsList([
-          {
-            id: null,
-            inventory_number: '',
-            selectedMaterialType: '',
-            searchResults: [],
-            accessories: '',
-            condition: '',
-          }
-        ]);
-        setAccessoriesGlobal('');
-        setReturnDate('');
-        setSubject('');
-      } else {
-        alert("Error al registrar préstamo");
-      }
-    } catch (error) {
-      console.error(error);
+    // ✅ Éxito
+    if (res.data.success) {
+      alert(res.data.message);
+
+      // limpiar formulario
+      setMatricula('');
+      setStudent(null);
+      setSelectedLab('');
+      setMaterialsList([
+        {
+          id: null,
+          inventory_number: '',
+          selectedMaterialType: '',
+          searchResults: [],
+          accessories: '',
+          condition: '',
+        }
+      ]);
+      setAccessoriesGlobal('');
+      setReturnDate('');
+      setSubject('');
+    } else {
+      // ⚠️ Error lógico (ej: material ya prestado)
+      alert(res.data.message);
+    }
+
+  } catch (error) {
+    console.error(error);
+
+    if (error.response?.data?.message) {
+      alert(error.response.data.message); // mensaje del backend
+    } else {
       alert("Error guardando préstamo");
     }
-  };
+  }
+};
+
 
   return (
     <div className="p-6 max-w-xl mx-auto">
