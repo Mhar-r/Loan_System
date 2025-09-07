@@ -9,17 +9,18 @@ use Inertia\Response;
 
 class MaterialTypeController extends Controller
 {
-    public function index()
+public function index()
 {
-    return response()->json(MaterialType::all());
+    return response()->json(\App\Models\MaterialType::all());
 }
+
 
     public function create(): Response
     {
         return Inertia::render('Admin/MaterialType'); // ✅ Respeta mayúsculas según tu carpeta
     }
 
-    
+
 
 
 

@@ -23,4 +23,5 @@ class MaterialType extends Model
     {
         return $this->belongsTo(Laboratory::class);
     }
+    
 }

@@ -8,7 +8,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialTypeController;
 use App\Http\Controllers\UserController;
-
+use App\Http\Controllers\ManagerMaterialController;
 
 
 /*
@@ -31,6 +31,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/roles', [RoleController::class, 'index']);
 
 
+Route::get('/materials', [ManagerMaterialController::class, 'index']);
+Route::post('/materials', [ManagerMaterialController::class, 'store']);
+Route::put('/materials/{id}', [ManagerMaterialController::class, 'update']);
+Route::delete('/materials/{id}', [ManagerMaterialController::class, 'destroy']);
+
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{id}', [UserController::class, 'update']);
@@ -43,3 +48,4 @@ Route::get('/laboratories/{id}/materials', [MaterialController::class, 'getByLab
 
 Route::get('/material-types/by-lab/{lab_id}', [MaterialTypeController::class, 'getByLab']);
 Route::get('/materials/search-by-type', [MaterialController::class, 'searchByType']);
+Route::get('/material-types', [MaterialTypeController::class, 'index']);

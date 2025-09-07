@@ -76,7 +76,7 @@ Route::middleware(['auth', 'role:2'])->group(function () {
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])
         ->name('manager.dashboard');
 
-    
+
 });
 
 // Para el administrador
@@ -90,7 +90,7 @@ Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
     //Insertar Tipos de materiales(generadores, fuentes)
     Route::get('/materialtype', [MaterialTypeController::class, 'create'])->name('materialtype.create');
     Route::post('/materialtype', [MaterialTypeController::class, 'store'])->name('materialtype.store');
-    
+
 
     // Reportes de Préstamos
     Route::get('/loan_reports', [LoanReportController::class, 'index'])->name('loan_reports.index');
@@ -121,6 +121,10 @@ Route::get('/solicitudes', function () {
 Route::get('/estudiantes/panel', [StudentPanelController::class, 'index'])->name('student.panel');
 
 
-
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/manager-material', function () {
+        return Inertia::render('Admin/ManagerMaterial');
+    })->name('manager-material.index');
+});
 
 require __DIR__.'/auth.php';
