@@ -9,119 +9,124 @@ use Inertia\Inertia;
 
 use App\Http\Controllers\RegisterUsersController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentAuthController;
+
 use App\Http\Controllers\StudentPanelController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\MaterialTypeController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\LoanController;
 
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
+// Menú principal
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return Inertia::render('MainMenu/MainMenu');
 });
 
+// Login Admin (Laravel Breeze por defecto)
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+    ->middleware(['guest', NoCache::class])
+    ->name('login');
+// Dashboard genérico (Laravel Breeze por defecto)
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Perfil de usuario (Laravel Breeze)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'role:1'])->group(function () {
-    // Dashboard de Administrador (role_id = 1)
-    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+/*
+|--------------------------------------------------------------------------
+| ADMINISTRADOR (role_id = 1)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:1', 'no-cache'])->group(function () {
+    // Dashboard de Administrador
+    Route::get('/admin/dashboard',  [AdminDashboardController::class, 'index'])
         ->name('admin.dashboard');
 
+    // Gestión de Usuarios
+    Route::prefix('admin')->group(function () {
+        Route::get('/users', [RegisterUsersController::class, 'create'])->name('admin.users.create');
+        Route::post('/users', [RegisterUsersController::class, 'store'])->name('admin.users.store');
+
+        
+        
+        // Gestión de Préstamos
+        Route::get('/loans', [LoanController::class, 'index'])->name('loans.index');
+    });
 });
 
-Route::middleware(['auth', 'role:1,2'])->group(function () {
-    //Insertar Tipos de materiales(generadores, fuentes)
-    Route::get('/materials/creatematerialtype', [MaterialTypeController::class, 'create'])->name('materialtype.create');
-    Route::post('/materials/creatematerialtype', [MaterialTypeController::class, 'store'])->name('materialtype.store');
-    
-    //Registrar Materiales
-    Route::get('admin/materials/create', [MaterialController::class, 'create'])->name('material.create');
-    Route::post('admin/materials', [MaterialController::class, 'store'])->name('material.store');
-    //Registrar Prestamos
-    Route::get('/loans/create', [LoanController::class, 'create'])->name('loans.create');
-    Route::post('/loans', [LoanController::class, 'store'])->name('loans.store');
-
-    //Devolucion de Prestamos
-    Route::get('/loans/return-materials', function () {
-    return Inertia::render('Loans/ReturnMaterials');
-})->name('loans.return-materials');
-
-
-
-});
-
-
-Route::middleware(['auth', 'role:2'])->group(function () {
-    // Dashboard de Encargado (role_id = 2)
+/*
+|--------------------------------------------------------------------------
+| ENCARGADO (role_id = 2)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:2', 'no-cache'])->group(function () {
+    // Dashboard de Encargado
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])
         ->name('manager.dashboard');
 
     
 });
 
-// Para el administrador
-Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
-    // Gestión de Usuarios
-    // Mostrar formulario de registro (lo que tú quieres en /admin/users)
-    Route::get('/users', [RegisterUsersController::class, 'create'])->name('admin.users.create');
+/*
+|--------------------------------------------------------------------------
+| FUNCIONALIDADES COMPARTIDAS ENTRE ADMINISTRADOR (1) Y ENCARGADO (2)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:1,2'])->group(function () {
+    // Insertar Tipos de materiales (generadores, fuentes)
+    Route::get('/materials/creatematerialtype', [MaterialTypeController::class, 'create'])->name('materialtype.create');
+    Route::post('/materials/creatematerialtype', [MaterialTypeController::class, 'store'])->name('materialtype.store');
 
-    // Registrar usuario
-    Route::post('/users', [RegisterUsersController::class, 'store'])->name('admin.users.store');
-    
+    // Registrar Materiales
+    Route::get('admin/materials/create', [MaterialController::class, 'create'])->name('material.create');
+    Route::post('admin/materials', [MaterialController::class, 'store'])->name('material.store');
 
-    // Reportes de Préstamos
-    Route::get('/loan_reports', [LoanReportController::class, 'index'])->name('loan_reports.index');
-    // Historial de Préstamos
-    Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
-    // Reporte de Inventario
-    Route::get('/inventory_reports', [InventoryReportController::class, 'index'])->name('inventory_reports.index');
-    // Gestión de Préstamos
-    Route::get('/loans', [LoanController::class, 'index'])->name('loans.index');
+    // Registrar Préstamos
+    Route::get('/loans/create', [LoanController::class, 'create'])->name('loans.create');
+    Route::post('/loans', [LoanController::class, 'store'])->name('loans.store');
+
+    // Devolución de Préstamos
+    Route::get('/loans/return-materials', function () {
+        return Inertia::render('Loans/ReturnMaterials');
+    })->name('loans.return-materials');
+
+
+    // Panel de admin: página principal de solicitudes
+    Route::get('request/adminrequest', function () {
+        return Inertia::render('Request/AdminRequest'); // componente React
+    })->name('admin.requests');
 });
 
-// Para el encargado
-Route::middleware(['auth', 'role:2'])->prefix('manager')->group(function () {
-    Route::get('/inventory', [InventoryController::class, 'index'])->name('manager.inventory');
-    Route::get('/sales', [SalesController::class, 'index'])->name('manager.sales');
-    Route::get('/reports', [ReportController::class, 'index'])->name('manager.reports');
-});
 
+
+
+/*
+|--------------------------------------------------------------------------
+| ESTUDIANTES
+|--------------------------------------------------------------------------
+*/
 Route::get('/register-student', [StudentController::class, 'create'])->name('students.create');
 Route::post('/register-student', [StudentController::class, 'store'])->name('students.store');
 
-Route::get('/students/requests/create', [StudentRequestController::class, 'create'])->name('student.requests.create');
-
-Route::get('/solicitudes', function () {
-    return Inertia::render('Students/Requests');
-})->name('solicitudes.index');;
-
-Route::get('/estudiantes/panel', [StudentPanelController::class, 'index'])->name('student.panel');
 
 
+// Login Estudiante
+Route::get('/login/student', [StudentAuthController::class, 'showLoginForm'])
+    ->middleware('guest', 'no-cache') // middleware que acabamos de crear
+    ->name('student.login');
+Route::post('/login/student', [StudentAuthController::class, 'login'])->name('student.login.submit');
+Route::post('/logout/student', [StudentAuthController::class, 'logout'])->name('student.logout');
 
+Route::middleware('student.auth')->group(function () {
+    Route::get('/students/dashboard', [StudentAuthController::class, 'panel'])
+        ->name('students.dashboard');
+});
 
-require __DIR__.'/auth.php';
+// Breeze auth
+require __DIR__ . '/auth.php';

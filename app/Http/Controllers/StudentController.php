@@ -33,6 +33,7 @@ class StudentController extends Controller
             'group_name'   => 'nullable|string|max:20',
             'email'        => 'required|email|unique:students,email',
             'phone'        => 'nullable|string|max:15',
+            'password'       => 'required|string|min:6|confirmed',
 
             
         ]);
@@ -46,6 +47,7 @@ class StudentController extends Controller
             'group_name'   => $request->group_name,
             'email'        => $request->email,
             'phone'        => $request->phone,
+            'password'       => \Illuminate\Support\Facades\Hash::make($request->password), 
         ]);
 
         return redirect()->route('solicitudes.index')->with('success', 'Registro exitoso.');

@@ -20,7 +20,9 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "@inertiajs/inertia": "^0.11.1",
         "lodash.debounce": "^4.0.8",
+        "react-icons": "^5.5.0",
         "sweetalert2": "^11.22.4"
     }
 }

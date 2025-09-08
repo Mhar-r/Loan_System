@@ -5,7 +5,8 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+// 👆 agregamos usePage y router (si no tienes router, usa Inertia de '@inertiajs/inertia')
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -14,17 +15,36 @@ export default function Login({ status, canResetPassword }) {
         remember: false,
     });
 
+    const { props } = usePage();
+    const user = props.auth?.user; // <-- obtenemos usuario actual
+
     useEffect(() => {
+        // Limpia password al desmontar
         return () => {
             reset('password');
         };
     }, []);
 
+    // 👇 ESTE useEffect ES EL GUARD
+    useEffect(() => {
+        if (user) {
+            if (user.role_id === 1) {
+                router.replace(route('admin.dashboard'));   // dashboard admin
+            } else if (user.role_id === 2) {
+                router.replace(route('manager.dashboard')); // dashboard encargado
+            } else {
+                router.replace(route('dashboard'));         // fallback
+            }
+        }
+    }, [user]);
+
     const submit = (e) => {
         e.preventDefault();
-
         post(route('login'));
     };
+
+    // 👇 si ya hay usuario, no mostrar login (evita parpadeo)
+    if (user) return null;
 
     return (
         <GuestLayout>

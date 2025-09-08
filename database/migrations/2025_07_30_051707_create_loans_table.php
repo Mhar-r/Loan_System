@@ -21,6 +21,7 @@ return new class extends Migration
             $table->dateTime('loan_date')->useCurrent();
             $table->dateTime('return_date')->nullable();
             $table->string('subject', 100)->nullable();
+
             $table->timestamps();
         });
     }

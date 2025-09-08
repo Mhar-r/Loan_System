@@ -2,6 +2,7 @@ import axios from 'axios';
 import debounce from 'lodash.debounce';
 import { usePage } from '@inertiajs/react';
 import React, { useState, useEffect } from 'react';
+import Swal from "sweetalert2";
 
 export default function RegisterLoan() {
   const { auth } = usePage().props;
@@ -37,6 +38,7 @@ export default function RegisterLoan() {
   useEffect(() => {
     axios.get('/api/labs').then(res => {
       setLabs(res.data);
+      
     });
   }, []);
 
@@ -47,6 +49,7 @@ export default function RegisterLoan() {
       if (res.data.success) {
         setStudent(res.data.student);
         setError('');
+        
       } else {
         setStudent(null);
         setError('Estudiante no encontrado.');
@@ -155,14 +158,24 @@ export default function RegisterLoan() {
   // Registrar préstamo
 const handleRegisterLoan = async () => {
   if (!student || !selectedLab || materialsList.length === 0 || !subject.trim()) {
-    alert("Por favor completa todos los datos antes de guardar, incluyendo el asunto y materiales.");
+    Swal.fire({
+      icon: "warning",
+      title: "Campos incompletos",
+      text: "Por favor completa todos los datos antes de guardar, incluyendo el asunto y materiales.",
+      confirmButtonColor: "#3085d6",
+    });
     return;
   }
 
   // Validar que cada material tenga id y tipo
   for (const mat of materialsList) {
     if (!mat.id || !mat.selectedMaterialType) {
-      alert("Por favor selecciona un tipo y un material válido para todos los materiales.");
+      Swal.fire({
+        icon: "warning",
+        title: "Material inválido",
+        text: "Por favor selecciona un tipo y un material válido para todos los materiales.",
+        confirmButtonColor: "#3085d6",
+      });
       return;
     }
   }
@@ -183,7 +196,12 @@ const handleRegisterLoan = async () => {
 
     // ✅ Éxito
     if (res.data.success) {
-      alert(res.data.message);
+      Swal.fire({
+        icon: "success",
+        title: "Préstamo registrado",
+        text: res.data.message,
+        confirmButtonColor: "#28a745",
+      });
 
       // limpiar formulario
       setMatricula('');
@@ -204,17 +222,23 @@ const handleRegisterLoan = async () => {
       setSubject('');
     } else {
       // ⚠️ Error lógico (ej: material ya prestado)
-      alert(res.data.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: res.data.message,
+        confirmButtonColor: "#d33",
+      });
     }
 
   } catch (error) {
     console.error(error);
 
-    if (error.response?.data?.message) {
-      alert(error.response.data.message); // mensaje del backend
-    } else {
-      alert("Error guardando préstamo");
-    }
+    Swal.fire({
+      icon: "error",
+      title: "Error inesperado",
+      text: error.response?.data?.message || "Hubo un problema al guardar el préstamo.",
+      confirmButtonColor: "#d33",
+    });
   }
 };
 
@@ -244,7 +268,7 @@ const handleRegisterLoan = async () => {
         </div>
         {error && <p className="text-red-600 mt-2">{error}</p>}
       </div>
-
+ 
       {/* Datos estudiante */}
       {student && (
         <div className="border p-4 rounded bg-gray-50 mb-4">

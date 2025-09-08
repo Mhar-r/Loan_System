@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Request extends Model
 {
     protected $fillable = [
-        'student_id', 'material_type_id', 'accessories', 'status', 'request_date',
+        'student_id', 'material_type_id', 'accessories', 'status', 'laboratory_id'
     ];
 
     public function student()
@@ -19,5 +19,10 @@ class Request extends Model
     public function materialType()
     {
         return $this->belongsTo(MaterialType::class);
+    }
+
+    public function laboratory()
+    {
+        return $this->belongsTo(Laboratory::class);
     }
 }

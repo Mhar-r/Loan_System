@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { usePage } from "@inertiajs/react";
+import Swal from "sweetalert2";
 
 export default function ReturnMaterials() {
   const [labs, setLabs] = useState([]);
@@ -10,23 +11,27 @@ export default function ReturnMaterials() {
   const [condition, setCondition] = useState('');
   const [selectedDetailId, setSelectedDetailId] = useState(null);
 
-  const { errors } = usePage().props; // 👈 así obtenemos los errores de Inertia
+  const { errors } = usePage().props;
 
   useEffect(() => {
-  fetch("/api/loans") //  /api/loans definida en api.php
-    .then((res) => res.json())
-    .then((data) => setLoans(data))
-    .catch((err) => console.error("Error fetching loans:", err));
-}, []);
+    fetch("/api/loans")
+      .then((res) => res.json())
+      .then((data) => setLoans(data))
+      .catch((err) => console.error("Error fetching loans:", err));
+  }, []);
 
-  // Mostrar alerta si hay material no disponible
+  // Mostrar alerta si hay error desde backend
   useEffect(() => {
     if (errors?.material_unavailable) {
-      alert(errors.material_unavailable);
+      Swal.fire({
+        icon: "error",
+        title: "Material no disponible",
+        text: errors.material_unavailable,
+        confirmButtonColor: "#d33",
+      });
     }
   }, [errors]);
 
-  // Carga laboratorios
   useEffect(() => {
     axios.get('/api/labs')
       .then(res => setLabs(res.data))
@@ -46,31 +51,47 @@ export default function ReturnMaterials() {
 
   const fetchLoans = async () => {
     try {
-      const response = await axios.get(
-        `/api/loans/active`,
-        { params: { lab_id: selectedLab, matricula } }
-      );
+      const response = await axios.get(`/api/loans/active`, {
+        params: { lab_id: selectedLab, matricula }
+      });
       setLoans(response.data);
     } catch (error) {
       console.error("Error fetching loans:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudieron cargar los préstamos.",
+        confirmButtonColor: "#d33",
+      });
     }
   };
 
   const returnLoan = async (detailId) => {
     if (!condition.trim()) {
-      alert("Por favor escribe la condición al devolver el material.");
+      Swal.fire({
+        icon: "warning",
+        title: "Campo requerido",
+        text: "Por favor escribe la condición al devolver el material.",
+        confirmButtonColor: "#f59e0b",
+      });
       return;
     }
 
     try {
       const res = await fetch(`/api/loans/return/${detailId}`, {
-        method: "POST", // debe coincidir con la ruta
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ item_condition: condition })
       });
 
       if (res.ok) {
-        alert("Préstamo devuelto correctamente");
+        Swal.fire({
+          icon: "success",
+          title: "Devolución exitosa",
+          text: "El préstamo se ha devuelto correctamente.",
+          confirmButtonColor: "#16a34a",
+        });
+
         // quitar solo el detalle devuelto
         setLoans(loans.map(loan => ({
           ...loan,
@@ -80,15 +101,23 @@ export default function ReturnMaterials() {
         setCondition('');
       } else {
         const data = await res.json();
-        alert(data.message || "Error al devolver préstamo");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "Error al devolver préstamo.",
+          confirmButtonColor: "#d33",
+        });
       }
     } catch (error) {
       console.error(error);
-      alert("Error al devolver préstamo");
+      Swal.fire({
+        icon: "error",
+        title: "Error inesperado",
+        text: "Hubo un problema al devolver el préstamo.",
+        confirmButtonColor: "#d33",
+      });
     }
   };
-
-
 
   const handleClearSearch = () => {
     setMatricula('');

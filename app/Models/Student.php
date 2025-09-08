@@ -9,7 +9,7 @@ class Student extends Model
 {
     protected $fillable = [
         'student_id', 'name', 'first_surname', 'second_surname',
-        'major', 'group_name', 'email', 'phone', 'role_id',
+        'major', 'group_name', 'email', 'phone', 'password', 'role_id',
     ];
 
     public function requests()

@@ -4,12 +4,23 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { useState } from 'react';
+import { Inertia } from '@inertiajs/inertia';
+import { useEffect } from 'react';
+
+
 
 export default function Authenticated({ header, children }) {
     const { props } = usePage();
     const user = props.auth?.user;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+
+    useEffect(() => {
+        if (!user) {
+            // Si no hay usuario, redirige al login
+            Inertia.visit(route('login'), { replace: true });
+        }
+    }, [user]);
 
     if (!user) {
         return <div className="p-4 text-center text-gray-600">Cargando usuario...</div>;
@@ -51,10 +62,21 @@ export default function Authenticated({ header, children }) {
                                 </Dropdown.Trigger>
                                 <Dropdown.Content>
                                     <Dropdown.Link href={route('profile.edit')}>Perfil</Dropdown.Link>
-                                    <Dropdown.Link method="post" href={route('logout')} as="button">
+                                    <Dropdown.Link
+                                        href={route('logout')}
+                                        method="post"
+                                        as="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            Inertia.post(route('logout'), {}, {
+                                                onFinish: () => Inertia.visit('/'), // redirige al menú principal después de cerrar sesión
+                                            });
+                                        }}
+                                    >
                                         Cerrar sesión
                                     </Dropdown.Link>
                                 </Dropdown.Content>
+
                             </Dropdown>
                         </div>
 
