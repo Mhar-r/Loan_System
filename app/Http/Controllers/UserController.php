@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password;
+
+
 
 class UserController extends Controller
 {
@@ -20,8 +23,7 @@ class UserController extends Controller
             'second_surname' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|max:20',
-            'password' => 'required|string|confirmed|min:6',
-            'role_id' => 'required|integer|exists:roles,id',
+            'password' => ['required', 'confirmed', Password::defaults()],            'role_id' => 'required|integer|exists:roles,id',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
@@ -41,7 +43,7 @@ class UserController extends Controller
             'second_surname' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$user->id,
             'phone' => 'required|string|max:20',
-            'password' => 'nullable|string|confirmed|min:6',
+            'password' => ['nullable', 'confirmed', Password::defaults()],
             'role_id' => 'required|integer|exists:roles,id',
         ]);
 

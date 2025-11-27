@@ -24,29 +24,22 @@ class MaterialController extends Controller
     }
 
     public function store(Request $request)
-    {
-        try {
-        $request->validate([
-            'material_type_id' => 'required|exists:material_types,id',
-            'brand' => 'nullable|string|max:100',
-            'inventory_number' => 'required|string|max:50|unique:materials',
-            'serial_number' => 'required|string|max:50|unique:materials',
-            'condition' => 'nullable|in:Good,Fair,Poor',
-            'status' => 'required|in:Available,Loaned,Under Repair',
-            'laboratory_id' => 'nullable|exists:laboratories,id',
-        ]);
+{
+    $request->validate([
+        'material_type_id' => 'required|exists:material_types,id',
+        'brand' => 'nullable|string|max:100',
+        'inventory_number' => 'required|string|max:50|unique:materials',
+        'serial_number' => 'required|string|max:50|unique:materials',
+        'condition' => 'nullable|in:Good,Fair,Poor',
+        'status' => 'required|in:Available,Loaned,Under Repair',
+        'laboratory_id' => 'nullable|exists:laboratories,id',
+    ]);
 
-        Material::create($request->all());
+    Material::create($request->all());
 
-        return redirect()->route('material.create')->with('success', 'Material registrado correctamente.');
-    }catch (\Exception $e) {
-    return response()->json([
-        'error' => $e->getMessage(),
-        'trace' => $e->getTraceAsString(),
-    ], 500);
+    return redirect()->back()->with('success', 'Material registrado correctamente.');
 }
 
-}
 
 public function getByLab($lab_id)
     {
@@ -71,27 +64,32 @@ public function searchByType(Request $request)
     try {
         $request->validate([
             'type_id' => 'required|exists:material_types,id',
+            'lab_id' => 'required|exists:laboratories,id',
             'query' => 'nullable|string',
         ]);
 
-        $typeId = $request->input('type_id');
-        $query = $request->input('query', '');
+        $queryText = $request->input('query'); // <-- aquí usamos input() y no query
 
-        $materials = Material::where('material_type_id', $typeId)
-            ->when($query !== '', function ($q) use ($query) {
-                $q->where('inventory_number', 'like', '%' . $query . '%');
-            })
-            ->get();
+        $materials = Material::where('material_type_id', $request->type_id)
+                            ->where('laboratory_id', $request->lab_id)
+                            ->where('status', 'Available')
+                            ->when($queryText, function($q) use ($queryText) {
+                                $q->where(function($q2) use ($queryText) {
+                                    $q2->where('inventory_number', 'like', "%{$queryText}%")
+                                       ->orWhere('serial_number', 'like', "%{$queryText}%");
+                                });
+                            })
+                            ->get();
 
         return response()->json($materials);
-
     } catch (\Exception $e) {
         return response()->json([
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
+            'error' => $e->getMessage()
         ], 500);
     }
 }
+
+
 
 
 

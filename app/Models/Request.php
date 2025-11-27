@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Request extends Model
 {
     protected $fillable = [
-        'student_id', 'material_type_id', 'accessories', 'status', 'request_date',
+        'student_id',  'accessories', 'status', 'laboratory_id', 'subject'
     ];
 
     public function student()
@@ -18,6 +18,23 @@ class Request extends Model
 
     public function materialType()
     {
-        return $this->belongsTo(MaterialType::class);
+        return $this->belongsTo(MaterialType::class, 'material_type_id');
     }
+
+    public function laboratory()
+    {
+        return $this->belongsTo(Laboratory::class);
+    }
+
+    public function materials()
+{
+    return $this->hasMany(\App\Models\RequestMaterial::class, 'request_id');
+}
+
+
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
+
 }

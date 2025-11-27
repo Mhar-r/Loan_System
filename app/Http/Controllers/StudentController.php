@@ -24,33 +24,53 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'student_id'   => 'required|string|max:20|unique:students,student_id',
-            'name'   => 'required|string|max:100',
-            'first_surname'    => 'required|string|max:50',
-            'second_surname'  => 'required|string|max:50',
-            'major'        => 'required|in:Systems,Electronics,Mechatronics,Industrial,Other',
+            'name'         => 'required|string|max:100',
+            'first_surname'=> 'required|string|max:50',
+            'second_surname'=> 'required|string|max:50',
+            'major'        => 'required|in:Software,Electronics,Mechatronics,Industrial,Other',
             'group_name'   => 'nullable|string|max:20',
             'email'        => 'required|email|unique:students,email',
             'phone'        => 'nullable|string|max:15',
+            'password' => [
+                'required',
+                'string',
+                'min:8', // mínimo 8 caracteres
+                'confirmed',
+                'regex:/[a-z]/',      // al menos una minúscula
+                'regex:/[A-Z]/',      // al menos una mayúscula
+                'regex:/[0-9]/',      // al menos un número
+            ],
 
-            
+        ], [
+            'password.regex' => 'La contraseña debe tener al menos una mayúscula, una minúscula y un número.',
+        ], [
+            'student_id' => 'matrícula',
+            'name' => 'nombre',
+            'first_surname' => 'primer apellido',
+            'second_surname' => 'segundo apellido',
+            'major' => 'carrera',
+            'email' => 'correo electrónico',
+            'password' => 'contraseña',
         ]);
 
         Student::create([
-            'student_id'   => $request->student_id,
-            'name'   => $request->name,
-            'first_surname'    => $request->first_surname,
-            'second_surname'  => $request->second_surname,
-            'major'        => $request->major,
-            'group_name'   => $request->group_name,
-            'email'        => $request->email,
-            'phone'        => $request->phone,
+            'student_id'   => $validated['student_id'],
+            'name'         => $validated['name'],
+            'first_surname'=> $validated['first_surname'],
+            'second_surname'=> $validated['second_surname'],
+            'major'        => $validated['major'],
+            'group_name'   => $validated['group_name'] ?? null,
+            'email'        => $validated['email'],
+            'phone'        => $validated['phone'] ?? null,
+            'password'     => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('solicitudes.index')->with('success', 'Registro exitoso.');
-
+        // Devuelve éxito a Inertia, no redirect
+        return redirect()->route('student.login')->with('success', 'Registro exitoso.');
     }
+
 
     public function searchByMatricula($matricula)
     {
@@ -69,6 +89,38 @@ class StudentController extends Controller
         ], 404);
     }
 
+    public function index(Request $request)
+    {
+        $query = Student::query();
+
+        // 🔎 Filtro por carrera (major)
+        if ($request->has('major') && $request->major != '') {
+            $query->where('major', $request->major);
+        }
+
+        // 🔎 Filtro por grupo
+        if ($request->has('group_name') && $request->group_name != '') {
+            $query->where('group_name', $request->group_name);
+        }
+
+        // 🔎 Búsqueda por nombre o matrícula
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('first_surname', 'like', "%$search%")
+                  ->orWhere('second_surname', 'like', "%$search%")
+                  ->orWhere('student_id', 'like', "%$search%");
+            });
+        }
+
+        $students = $query->orderBy('first_surname')->paginate(10);
+
+        return Inertia::render('Students/Index', [
+            'students' => $students,
+            'filters'  => $request->only(['major', 'group_name', 'search']),
+        ]);
+    }
 
 
 }

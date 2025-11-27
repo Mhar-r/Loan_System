@@ -1,7 +1,9 @@
 import axios from 'axios';
 import debounce from 'lodash.debounce';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { usePage } from '@inertiajs/react';
 import React, { useState, useEffect } from 'react';
+import Swal from "sweetalert2";
 
 export default function RegisterLoan() {
   const { auth } = usePage().props;
@@ -37,6 +39,7 @@ export default function RegisterLoan() {
   useEffect(() => {
     axios.get('/api/labs').then(res => {
       setLabs(res.data);
+      
     });
   }, []);
 
@@ -47,6 +50,7 @@ export default function RegisterLoan() {
       if (res.data.success) {
         setStudent(res.data.student);
         setError('');
+        
       } else {
         setStudent(null);
         setError('Estudiante no encontrado.');
@@ -79,17 +83,22 @@ export default function RegisterLoan() {
 
   // Función para buscar materiales (debounced) por material index en la lista
   const debouncedSearch = debounce(async (query, index) => {
-    const type_id = materialsList[index].selectedMaterialType;
-    if (!type_id) return;
-    try {
-      const res = await axios.get('/api/materials/search-by-type', {
-        params: { type_id, query }
-      });
-      updateMaterialField(index, 'searchResults', res.data);
-    } catch (e) {
-      updateMaterialField(index, 'searchResults', []);
-    }
-  }, 500);
+  const type_id = materialsList[index].selectedMaterialType;
+  if (!type_id || !selectedLab) return; // aseguramos que haya lab y tipo
+  try {
+    const res = await axios.get('/api/materials/search-by-type', {
+      params: { 
+        type_id, 
+        lab_id: selectedLab,   // 🔥 añadimos laboratorio
+        query 
+      }
+    });
+    updateMaterialField(index, 'searchResults', res.data);
+  } catch (e) {
+    updateMaterialField(index, 'searchResults', []);
+  }
+}, 500);
+
 
   // Actualizar un campo dentro de materialsList en posición index
   const updateMaterialField = (index, field, value) => {
@@ -153,62 +162,95 @@ export default function RegisterLoan() {
   };
 
   // Registrar préstamo
-  const handleRegisterLoan = async () => {
+const handleRegisterLoan = async () => {
   if (!student || !selectedLab || materialsList.length === 0 || !subject.trim()) {
-    alert("Por favor completa todos los datos antes de guardar, incluyendo el asunto y materiales.");
+    Swal.fire({
+      icon: "warning",
+      title: "Campos incompletos",
+      text: "Por favor completa todos los datos antes de guardar, incluyendo el asunto y materiales.",
+      confirmButtonColor: "#3085d6",
+    });
     return;
   }
 
   // Validar que cada material tenga id y tipo
   for (const mat of materialsList) {
     if (!mat.id || !mat.selectedMaterialType) {
-      alert("Por favor selecciona un tipo y un material válido para todos los materiales.");
+      Swal.fire({
+        icon: "warning",
+        title: "Material inválido",
+        text: "Por favor selecciona un tipo y un material válido para todos los materiales.",
+        confirmButtonColor: "#3085d6",
+      });
       return;
     }
   }
 
-    try {
-      const res = await axios.post('/loans', {
-        student_id: student.id,
-        manager_id: currentUser.id,
-        accessories: accessoriesGlobal,  // accesorios generales
-        return_date: ReturnDate || null,
-        subject: subject.trim(),
-        materials: materialsList.map(m => ({
-          id: m.id,
-          accessories: m.accessories,
-        })),
+  try {
+    const res = await axios.post('/loans', {
+      student_id: student.id,
+      manager_id: currentUser.id,
+      laboratory_id: selectedLab,
+      accessories: accessoriesGlobal,
+      return_date: ReturnDate || null,
+      subject: subject.trim(),
+      materials: materialsList.map(m => ({
+        id: m.id,
+        accessories: m.accessories,
+      })),
+    });
+
+    // ✅ Éxito
+    if (res.data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Préstamo registrado",
+        text: res.data.message,
+        confirmButtonColor: "#28a745",
       });
 
-      if (res.status === 200 || res.status === 201) {
-        alert("Préstamo registrado correctamente!");
-        // Limpiar formulario
-        setMatricula('');
-        setStudent(null);
-        setSelectedLab('');
-        setMaterialsList([
-          {
-            id: null,
-            inventory_number: '',
-            selectedMaterialType: '',
-            searchResults: [],
-            accessories: '',
-            condition: '',
-          }
-        ]);
-        setAccessoriesGlobal('');
-        setReturnDate('');
-        setSubject('');
-      } else {
-        alert("Error al registrar préstamo");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error guardando préstamo");
+      // limpiar formulario
+      setMatricula('');
+      setStudent(null);
+      setSelectedLab('');
+      setMaterialsList([
+        {
+          id: null,
+          inventory_number: '',
+          selectedMaterialType: '',
+          searchResults: [],
+          accessories: '',
+          condition: '',
+        }
+      ]);
+      setAccessoriesGlobal('');
+      setReturnDate('');
+      setSubject('');
+    } else {
+      // ⚠️ Error lógico (ej: material ya prestado)
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: res.data.message,
+        confirmButtonColor: "#d33",
+      });
     }
-  };
+
+  } catch (error) {
+    console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error inesperado",
+      text: error.response?.data?.message || "Hubo un problema al guardar el préstamo.",
+      confirmButtonColor: "#d33",
+    });
+  }
+};
+
 
   return (
+    <AuthenticatedLayout>
     <div className="p-6 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Registrar Préstamo</h1>
 
@@ -226,14 +268,14 @@ export default function RegisterLoan() {
           />
           <button
             onClick={handleSearchStudent}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="btn-primary"
           >
             Buscar
           </button>
         </div>
         {error && <p className="text-red-600 mt-2">{error}</p>}
       </div>
-
+ 
       {/* Datos estudiante */}
       {student && (
         <div className="border p-4 rounded bg-gray-50 mb-4">
@@ -339,7 +381,7 @@ export default function RegisterLoan() {
       {/* Botón para agregar material */}
       <button
         onClick={addNewMaterial}
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+        className="btn-secondary"
       >
         + Agregar otro material
       </button>
@@ -358,7 +400,7 @@ export default function RegisterLoan() {
 
       {/* Fecha esperada de devolución */}
       <div className="mb-4">
-        <label>Fecha esperada de devolución</label>
+        <label>Fecha de prestamo</label>
         <input
           type="date"
           className="w-full border p-2"
@@ -400,10 +442,11 @@ export default function RegisterLoan() {
       {/* Botón registrar */}
       <button
         onClick={handleRegisterLoan}
-        className="bg-green-600 text-white px-4 py-2 rounded"
+        className="btn-confirmation"
       >
         Guardar Préstamo
       </button>
     </div>
+    </AuthenticatedLayout>
   );
 }

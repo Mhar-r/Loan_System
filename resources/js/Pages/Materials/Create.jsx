@@ -24,6 +24,8 @@ export default function Create() {
         }
     }, [flash]);
 
+    
+
 
     const { data, setData, post, processing, errors, reset } = useForm({
         material_type_id: '',

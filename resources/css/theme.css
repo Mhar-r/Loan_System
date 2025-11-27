@@ -1,0 +1,172 @@
+:root {
+  --color-primary: #441b69;
+  --color-primary-light: #6b36a7;
+  --color-primary-dark: #2e124a;
+  --color-secondary: #3670b7;
+  --color-confirmation: #3aad1b;
+  --color-clean: #757575;
+  --color-secondary-light: #5fa3e1;
+  --color-success: #3dbb7f;
+  --color-warning: #f2b84b;
+  --color-danger: #e05656;
+  --color-bg: #f5f3fa;
+  --color-text: #1e1e2e;
+  --color-text-secondary: #55546b;
+}
+
+/* Fondo base y texto general */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Inter", sans-serif;
+}
+
+/* -------- Botones -------- */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(68, 27, 105, 0.2);
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-light);
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(54, 112, 183, 0.2);
+}
+.btn-secondary:hover {
+  background-color: var(--color-secondary-light);
+  transform: scale(1.05);
+}
+
+.btn-confirmation {
+  background-color: var(--color-confirmation);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(54, 112, 183, 0.2);
+}
+.btn-confirmation:hover {
+  background-color: var(--color-secondary-light);
+  transform: scale(1.05);
+}
+
+.btn-clear {
+  background-color: var(--color-clean);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(54, 112, 183, 0.2);
+}
+.btn-clear:hover {
+  background-color: var(--color-secondary-light);
+  transform: scale(1.05);
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-danger:hover {
+  background-color: #c44545;
+}
+
+/* -------- Inputs -------- */
+.input-base {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  background-color: #f3f3f8;
+  border: 1px solid #d4d4e3;
+  color: var(--color-text);
+  transition: all 0.2s ease;
+}
+
+.input-base:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(68, 27, 105, 0.2);
+  outline: none;
+}
+
+/* -------- Tarjetas y contenedores -------- */
+.card-base {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e5ef;
+  padding: 2rem;
+}
+
+/* -------- Títulos -------- */
+.title-primary {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* -------- Tablas -------- */
+.table-base {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.table-base thead {
+  background-color: rgba(68, 27, 105, 0.1);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.table-base th,
+.table-base td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eaeaf3;
+}
+
+.table-base tbody tr:hover {
+  background-color: rgba(107, 54, 167, 0.05);
+}
+
+/* -------- Modal -------- */
+.modal-bg {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  padding-top: 2rem;
+  z-index: 50;
+}
+
+.modal-card {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 700px;
+  width: 100%;
+  border: 1px solid rgba(68, 27, 105, 0.2);
+  box-shadow: 0 10px 25px rgba(68, 27, 105, 0.15);
+}

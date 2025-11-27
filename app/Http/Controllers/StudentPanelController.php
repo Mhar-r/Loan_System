@@ -9,7 +9,10 @@ class StudentPanelController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Students/Panel');
+        return Inertia::render('Students/Dashboard', [
+        'student' => Session::get('student'),
+    ]);
+
     }
 }
 

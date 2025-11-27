@@ -1,4 +1,3 @@
-// resources/js/Pages/Admin/Dashboard.jsx
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
@@ -8,67 +7,92 @@ export default function AdminDashboard({ user }) {
         <AuthenticatedLayout>
             <>
                 <Head title="Panel de Administrador" />
-                <div className="min-h-screen bg-gray-100 p-6">
-                    <div className="max-w-7xl mx-auto">
-                        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-                            Bienvenido, {user.name}
-                        </h1>
-                        <p className="text-gray-600 mb-8">Rol: Administrador</p>
 
-                        <div className="p-8">
-                            <h1 className="text-3xl font-bold mb-6">
-                                Panel de Administrador
+                <div className="min-h-screen bg-[#F7F5FB] p-8 text-gray-800">
+                    <div className="max-w-7xl mx-auto">
+                        
+                        {/* Encabezado */}
+                        <div className="mb-12 text-center">
+                            <h1 className="text-4xl md:text-5xl font-extrabold text-[#441B69] mb-3">
+                                Bienvenido, {user.name}
                             </h1>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                            <p className="text-gray-600 font-medium text-lg">
+                                Rol: Administrador
+                            </p>
+                            <div className="mt-4 w-24 h-1 bg-[#6A32A8] mx-auto rounded-full"></div>
+                        </div>
+
+                        {/* Grid de tarjetas */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                            {[
+                                { 
+                                    href: "/admin/users", 
+                                    text: "Gestión de Usuarios",
+                                    description: "Administra usuarios, roles y accesos del sistema."
+                                },
+                                { 
+                                    href: route("material-type.index"), 
+                                    text: "Agregar Tipo de Material",
+                                    description: "Crea nuevas categorías para clasificar materiales."
+                                },
+                                { 
+                                    href: route("loans.create"), 
+                                    text: "Registro de Préstamos",
+                                    description: "Registra un préstamo para estudiantes o personal."
+                                },
+                                { 
+                                    href: route("admin.requests"), 
+                                    text: "Solicitudes de Préstamos",
+                                    description: "Revisa, aprueba o rechaza solicitudes pendientes."
+                                },
+                                { 
+                                    href: route("loans.return-materials"), 
+                                    text: "Devolución de Préstamos",
+                                    description: "Registra el retorno de material prestado."
+                                },
+                                { 
+                                    href: route("manager-material.index"), 
+                                    text: "Inventario de Material",
+                                    description: "Consulta y administra todo el inventario disponible."
+                                },
+                                { 
+                                    href: route("admin.loans.history"), 
+                                    text: "Historial de Préstamos",
+                                    description: "Consulta todos los préstamos realizados."
+                                },
+                                { 
+                                    href: route("students.index"), 
+                                    text: "Gestión de Alumnos",
+                                    description: "Administra los datos y registros de estudiantes."
+                                },
+                                { 
+                                    href: route("loans.myHistory"), 
+                                    text: "Mi Historial de Préstamos",
+                                    description: "Consulta todos los préstamos realizados por ti."
+                                },
+                                { 
+                                    href: route("user.security.step1"), 
+                                    text: "Recuperar Contraseñas",
+                                    description: "Recupera las contraseñas de admins y encargados."
+                                },
+                            ].map((item, index) => (
                                 <Link
-                                    href="/admin/users"
-                                    className="p-6 bg-blue-100 rounded shadow hover:bg-blue-200 transition"
+                                    key={index}
+                                    href={item.href}
+                                    className="group relative p-8 rounded-2xl bg-white border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center"
                                 >
-                                    Gestión de Usuarios
+                                    <span className="text-lg font-semibold text-[#441B69] group-hover:text-[#6A32A8] transition-colors duration-200">
+                                        {item.text}
+                                    </span>
+
+                                    <p className="text-sm text-gray-600 mt-2">
+                                        {item.description}
+                                    </p>
+
+                                    {/* línea decorativa inferior */}
+                                    <div className="absolute bottom-0 left-0 w-full h-1 bg-[#441B69]/0 group-hover:bg-[#6A32A8]/90 transition-all duration-300 rounded-b-2xl"></div>
                                 </Link>
-                                <Link
-                                    href={route("materialtype.create")}
-                                    className="p-6 bg-green-100 rounded shadow hover:bg-green-200 transition"
-                                >
-                                    Agregar Tipo de Material
-                                </Link>
-                                <Link
-                                    href={route("material.create")}
-                                    className="p-6 bg-yellow-100 rounded shadow hover:bg-yellow-200 transition"
-                                >
-                                    Registrar Material
-                                </Link>
-                                <Link
-                                    href={route("students.create")}
-                                    className="p-6 bg-red-100 rounded shadow hover:bg-red-200 transition"
-                                >
-                                    Registrar Estudiantes
-                                </Link>
-                                <Link
-                                    href={route("loans.create")}
-                                    className="p-6 bg-purple-100 rounded shadow hover:bg-purple-200 transition"
-                                >
-                                    Registro de Prestamos
-                                </Link>
-                                <Link
-                                    href="/admin/loans"
-                                    className="p-6 bg-pink-100 rounded shadow hover:bg-pink-200 transition"
-                                >
-                                    Solicitudes de Prestamos
-                                </Link>
-                                <Link className="p-6 bg-pink-100 rounded shadow hover:bg-pink-200 transition">
-                                    Devoluciones
-                                </Link>
-                                <Link className="p-6 bg-pink-100 rounded shadow hover:bg-pink-200 transition">
-                                    Historial de Prestamos
-                                </Link>
-                                <Link
-                                    href={route("manager-material.index")}
-                                    className="p-6 bg-indigo-100 rounded shadow hover:bg-indigo-200 transition"
-                                >
-                                    Gestión de Materiales
-                                </Link>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>

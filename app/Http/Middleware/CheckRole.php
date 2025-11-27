@@ -11,17 +11,27 @@ class CheckRole
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  int       $roleId
+     * @param  Request  $request
+     * @param  Closure  $next
+     * @param  mixed  ...$roles  Roles permitidos
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $roleId)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (! Auth::check() || Auth::user()->role_id != $roleId) {
-            abort(403);
+        // Obtener usuario actual
+        $user = Auth::user(); // usar guard por defecto (web)
+
+        if (!$user) {
+            abort(403, 'No autenticado');
         }
+
+        // Convertir a int los roles permitidos
+        $roles = array_map('intval', $roles);
+
+        if (!in_array($user->role_id, $roles)) {
+            abort(403, 'Acceso denegado');
+        }
+
         return $next($request);
     }
 }
-

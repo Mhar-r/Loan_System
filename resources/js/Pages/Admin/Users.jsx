@@ -8,8 +8,16 @@ import { Head, useForm } from "@inertiajs/react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { FaPen, FaTrash, FaTimes, FaSearch } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 
 export default function UsersManager() {
+
+    const [showPassword, setShowPassword] = useState(false);
+const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
+
+
     const [roles, setRoles] = useState([]);
     const [users, setUsers] = useState([]);
     const [showForm, setShowForm] = useState(false);
@@ -41,7 +49,7 @@ export default function UsersManager() {
         e.preventDefault();
         if (editingUser) {
             axios
-                .put(`/api/users/${editingUser.id}`, data)
+                .post(`/api/users/update/${editingUser.id}`, data)
                 .then((res) => {
                     Swal.fire("Éxito", res.data.message, "success");
                     fetchData();
@@ -99,13 +107,16 @@ export default function UsersManager() {
             cancelButtonText: "Cancelar",
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`/api/users/${id}`).then(() => {
+                axios.post(`/api/users/delete/${id}`).then(() => {
                     Swal.fire("Eliminado", "Usuario eliminado", "success");
                     fetchData();
+                }).catch(err => {
+                    Swal.fire("Error", "No se pudo eliminar", "error");
                 });
             }
         });
     };
+
 
     const filteredUsers = users.filter((user) =>
         `${user.name} ${user.first_surname} ${user.second_surname}`
@@ -113,7 +124,8 @@ export default function UsersManager() {
             .includes(search.toLowerCase())
     );
 
-    return (
+    return (<AuthenticatedLayout>
+                
         <>
             <Head title="Gestión de Usuarios" />
 
@@ -150,7 +162,7 @@ export default function UsersManager() {
                             setEditingUser(null);
                             setShowForm(true);
                         }}
-                        className="bg-green-400 hover:bg-green-500 text-white px-4 py-2 rounded-lg"
+                        className="btn-confirmation"
                     >
                         + Agregar Usuario
                     </PrimaryButton>
@@ -354,54 +366,63 @@ export default function UsersManager() {
                                 </div>
                                 {!editingUser && (
                                     <>
-                                        <div>
-                                            <InputLabel
-                                                htmlFor="password"
-                                                value="Contraseña"
-                                            />
+                                        {/* Contraseña */}
+                                        <div className="relative">
+                                            <InputLabel htmlFor="password" value="Contraseña" />
+
                                             <TextInput
                                                 id="password"
-                                                type="password"
+                                                type={showPassword ? "text" : "password"}
                                                 value={data.password}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        "password",
-                                                        e.target.value
-                                                    )
-                                                }
+                                                onChange={(e) => setData("password", e.target.value)}
                                                 required
+                                                className="pr-10"
                                             />
-                                            <InputError
-                                                message={errors.password}
-                                            />
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                                            >
+                                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                            </button>
+
+                                            <InputError message={errors.password} />
                                         </div>
-                                        <div>
+
+                                        {/* Confirmar Contraseña */}
+                                        <div className="relative">
                                             <InputLabel
                                                 htmlFor="password_confirmation"
                                                 value="Confirmar Contraseña"
                                             />
+
                                             <TextInput
                                                 id="password_confirmation"
-                                                type="password"
-                                                value={
-                                                    data.password_confirmation
-                                                }
+                                                type={showPasswordConfirm ? "text" : "password"}
+                                                value={data.password_confirmation}
                                                 onChange={(e) =>
-                                                    setData(
-                                                        "password_confirmation",
-                                                        e.target.value
-                                                    )
+                                                    setData("password_confirmation", e.target.value)
                                                 }
                                                 required
+                                                className="pr-10"
                                             />
-                                            <InputError
-                                                message={
-                                                    errors.password_confirmation
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setShowPasswordConfirm(!showPasswordConfirm)
                                                 }
-                                            />
+                                                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                                            >
+                                                {showPasswordConfirm ? <FaEyeSlash /> : <FaEye />}
+                                            </button>
+
+                                            <InputError message={errors.password_confirmation} />
                                         </div>
                                     </>
                                 )}
+
                             </div>
 
                             <div className="flex justify-end gap-3 mt-6">
@@ -421,5 +442,7 @@ export default function UsersManager() {
                 </div>
             )}
         </>
+
+                </AuthenticatedLayout>
     );
 }
